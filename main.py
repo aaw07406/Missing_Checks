@@ -2,6 +2,7 @@ from functions import *
 import tkinter.filedialog as fd
 from customtkinter import CTkImage
 from PIL import Image
+from tkinter import PhotoImage
 
 
 # ----- GLOBAL VARIABLE ----- #
@@ -305,10 +306,6 @@ def export_file():
         messagebox.showerror("Export Error", f"Failed to export file.\n{e}")
 
 
-
-
-
-
 # ----- Create the main window ----- #
 # region
 # Setup GUI
@@ -316,13 +313,21 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
 root = ctk.CTk()
 root.title("Missing Check Application")
-root.geometry("800x600")
+root.geometry("800x610")
 
 # Top Frame with Logo and Background
 header_frame = ctk.CTkFrame(root, height=130, corner_radius=0)
 header_frame.pack(fill="x")
 
+# ----- LOAD IMAGES ----- #
 current_dir = os.path.dirname(os.path.abspath(__file__))
+
+app = root
+app.iconbitmap(os.path.join(current_dir, "search_icon.ico"))
+# Use PNG image (recommended for taskbar + title bar)
+icon = PhotoImage(file=os.path.join(current_dir,"search_icon.png"))
+app.iconphoto(True, icon)
+
 image_dir = os.path.join(current_dir, "Gainwell_background.png")
 logo_dir = os.path.join(current_dir, "gw_logo.png")
 
@@ -335,6 +340,13 @@ bg_image_label.pack(side="left", padx=10)
 logo_image_label = ctk.CTkLabel(header_frame, image=logo_image, text="")
 logo_image_label.pack(side="right", padx=10)
 
+# Load icons
+export_icon = CTkImage(Image.open("export_icon.png"), size=(20, 20))
+start_icon = CTkImage(Image.open("start_icon.png"), size=(20, 20))
+clear_icon = CTkImage(Image.open("clear_icon.png"), size=(20, 20))
+exit_icon = CTkImage(Image.open("exit_icon.png"), size=(20, 20))
+browse_icon = CTkImage(Image.open("browse_icon.png"), size=(20, 20))
+
 # File selection area
 file_frame = ctk.CTkFrame(root)
 file_frame.pack(pady=10)
@@ -345,7 +357,7 @@ file_label.grid(row=0, column=0, padx=5)
 file_dropdown = ctk.CTkComboBox(file_frame, values=load_file_history(), command=on_dropdown_select)
 file_dropdown.grid(row=0, column=1, padx=5)
 
-browse_button = ctk.CTkButton(file_frame, text="Browse", command=load_file)
+browse_button = ctk.CTkButton(file_frame, text="Browse", image=browse_icon, compound='left', command=load_file, font=("Segoe UI", 12, "bold"))
 browse_button.grid(row=0, column=2, padx=5)
 
 # Format Selection
@@ -354,7 +366,7 @@ format_frame.pack()
 
 export_label = ctk.CTkLabel(format_frame, text="Export Format:")
 export_label.grid(row=0, column=0, padx=5)
-export_button = ctk.CTkButton(format_frame, text="Export", command=export_file)
+export_button = ctk.CTkButton(format_frame, text="Export", image=export_icon, compound="left", command=export_file, font=("Segoe UI", 12, "bold"))
 export_button.grid(row=0, column=3, padx=5)
 
 
@@ -374,13 +386,13 @@ results_textbox.bind("<Double-1>", on_textbox_double_click)
 button_frame = ctk.CTkFrame(root)
 button_frame.pack(pady=10)
 
-run_button = ctk.CTkButton(button_frame, text="Start Process", command=process_query)
+run_button = ctk.CTkButton(button_frame, text="Start Process", image=start_icon, compound='left', command=process_query, font=("Segoe UI", 12, "bold"))
 run_button.grid(row=0, column=0, padx=10)
 
-clear_button = ctk.CTkButton(button_frame, text="Clear Results", command=lambda: results_textbox.delete("1.0", "end"))
+clear_button = ctk.CTkButton(button_frame, text="Clear Results", image=clear_icon, compound='left', command=lambda: results_textbox.delete("1.0", "end"), font=("Segoe UI", 12, "bold"))
 clear_button.grid(row=0, column=1, padx=10)
 
-exit_button = ctk.CTkButton(button_frame, text="Exit", command=root.destroy)
+exit_button = ctk.CTkButton(button_frame, text="Exit", image=exit_icon, compound='left', command=root.destroy, font=("Segoe UI", 12, "bold"))
 exit_button.grid(row=0, column=2, padx=10)
 
 # Status label
