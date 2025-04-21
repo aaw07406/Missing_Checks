@@ -1,13 +1,18 @@
 from functions import *
-import tkinter
 import tkinter.filedialog as fd
+from customtkinter import CTkImage
+from PIL import Image
 
 
+# ----- GLOBAL VARIABLE ----- #
+import_df = pd.DataFrame()
 HISTORY_FILE = "file_history.txt"
 MAX_HISTORY = 10
 merged_df = None  # Will hold the merged result for exporting
 
 
+# ----- FILE HISTORY ----- #
+# region
 def on_textbox_double_click(event):
     line_index = results_textbox.index("@%s,%s linestart" % (event.x, event.y))
     line_text = results_textbox.get(line_index, f"{line_index} lineend").strip()
@@ -63,7 +68,29 @@ def display_file_history():
         print("Error reading history file:", e)
 
 
-import_df = pd.DataFrame()
+def on_dropdown_select(choice):
+    global import_df
+
+    if not choice:
+        return
+
+    try:
+        import_df = pd.read_excel(choice) if choice.endswith((".xls", ".xlsx")) else pd.read_csv(choice)
+        
+        def truncate_cell(x, maxlen=30):
+            return str(x)[:maxlen] + "..." if len(str(x)) > maxlen else x
+
+        preview_df = import_df.iloc[:, :10].head(10).applymap(truncate_cell)
+        preview = tabulate(preview_df, headers='keys', tablefmt='pretty', showindex=False)
+
+        results_textbox.delete(1.0, "end")
+        results_textbox.insert("end", preview)
+        
+        messagebox.showinfo("File Loaded", f"File '{os.path.basename(choice)}' loaded successfully!")
+
+    except Exception as e:
+        messagebox.showerror("File Load Error", f"Failed to load file:\n{e}")
+# endregion
 
 
 # ----- IMPORT EXCEL/CSV ----- #
@@ -205,11 +232,50 @@ def process_query():
 
             
         elif merged_df.empty:
-            messagebox.showinfo("No Records Found", "No missing checks found.")
+            messagebox.showerror("No Records Found", "No missing checks found.")
     
     except: 
         print("No records found in the merge.")
+        messagebox.showerror("No Records Found", "No missing checks found.")
         merged_df = pd.DataFrame()
+
+
+# ----- DISPLAY ON CONSOLE ----- #
+# region
+    results_df = merged_df.copy()
+    print('Query successfully completed!')
+
+    results_df = results_df[['RECORD_TYPE_RF', 'CARRIER_CD', 'CARRIER_NM', 'CHECK_NUM', 'CHECK_AMT', 'Process Date']]
+
+    # Clear previous results
+    results_textbox.delete(1.0, "end")
+
+    try:
+        # Assuming merged_df is the result of a query or function
+        if not merged_df.empty:
+            messagebox.showinfo("Query Completed!", 'Success! View results in application.')
+
+            # Format the DataFrame into a nicely aligned table
+            formatted_results = tabulate(results_df, headers='keys', tablefmt='pretty', showindex=False)
+
+            monospace_font = CTkFont(family="Courier", size=12)
+            results_textbox.configure(font=monospace_font)
+
+            # Insert formatted results into the textbox
+            results_textbox.insert("end", formatted_results)
+
+        elif merged_df.empty:
+            messagebox.showerror("Error", f"An error occurred: No results returned.\nPlease retry your inputs.")
+
+        else:
+            # Insert results into textbox
+            results_textbox.insert("end", merged_df.to_string(index=False))
+
+    except Exception as e:
+        # Catch any exceptions and show an error message box
+        messagebox.showerror("Unexpected Error", f"An error occurred: {str(e)}")
+# endregion
+
 
     
 def export_file():
@@ -240,41 +306,6 @@ def export_file():
 
 
 
-# ----- DISPLAY ON CONSOLE ----- #
-# region
-    results_df = merged_df.copy()
-    print('Query successfully completed!')
-
-    results_df = results_df[['RECORD_TYPE_RF', 'CARRIER_CD', 'CARRIER_NM', 'CHECK_NUM', 'CHECK_AMT']]
-
-    # Clear previous results
-    results_textbox.delete(1.0, "end")
-
-    try:
-        # Assuming merged_df is the result of a query or function
-        if not merged_df.empty:
-            messagebox.showinfo("Query Completed!", 'Success! View results in application.')
-
-            # Format the DataFrame into a nicely aligned table
-            formatted_results = tabulate(results_df, headers='keys', tablefmt='pretty', showindex=False)
-
-            monospace_font = CTkFont(family="Courier", size=12)
-            results_textbox.configure(font=monospace_font)
-
-            # Insert formatted results into the textbox
-            results_textbox.insert("end", formatted_results)
-
-        elif merged_df.empty:
-            messagebox.showerror("Error", f"An error occurred: No results returned.\nPlease retry your inputs.")
-
-        else:
-            # Insert results into textbox
-            results_textbox.insert("end", merged_df.to_string(index=False))
-
-    except Exception as e:
-        # Catch any exceptions and show an error message box
-        messagebox.showerror("Unexpected Error", f"An error occurred: {str(e)}")
-# endregion
 
 
 
@@ -311,7 +342,7 @@ file_frame.pack(pady=10)
 file_label = ctk.CTkLabel(file_frame, text="Select a File:")
 file_label.grid(row=0, column=0, padx=5)
 
-file_dropdown = ctk.CTkComboBox(file_frame, values=load_file_history())
+file_dropdown = ctk.CTkComboBox(file_frame, values=load_file_history(), command=on_dropdown_select)
 file_dropdown.grid(row=0, column=1, padx=5)
 
 browse_button = ctk.CTkButton(file_frame, text="Browse", command=load_file)
