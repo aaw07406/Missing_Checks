@@ -1,8 +1,4 @@
 from functions import *
-import tkinter.filedialog as fd
-from customtkinter import CTkImage
-from PIL import Image
-from tkinter import PhotoImage
 
 
 # ----- GLOBAL VARIABLE ----- #
@@ -14,6 +10,42 @@ merged_df = None  # Will hold the merged result for exporting
 
 # ----- FILE HISTORY ----- #
 # region
+
+def normalize_string(s):
+    """Remove special characters, extra spaces, and make lowercase."""
+    return re.sub(r'\W+', '', str(s).strip().lower())
+
+
+def smart_read_file(file_path, expected_keywords=["payment", "serial", "number"], max_scan_rows=15):
+    is_excel = file_path.lower().endswith((".xls", ".xlsx"))
+    read_fn = pd.read_excel if is_excel else pd.read_csv
+
+    # Read the first few rows with no header
+    preview_df = read_fn(file_path, header=None, nrows=max_scan_rows)
+
+    # Limit to first 11 columns (A to K = 0 to 10)
+    preview_df = preview_df.iloc[:, :11]
+
+    header_row_index = None
+    for i, row in preview_df.iterrows():
+        normalized_cells = [normalize_string(cell) for cell in row.values]
+
+        for cell in normalized_cells:
+            if all(keyword in cell for keyword in expected_keywords):
+                header_row_index = i
+                break
+
+        if header_row_index is not None:
+            break
+
+    if header_row_index is None:
+        raise ValueError("Could not find a header row containing expected keywords like 'payment', 'serial', 'number'.")
+
+    # Re-read using detected header row
+    df = read_fn(file_path, header=header_row_index)
+    return df
+
+
 def on_textbox_double_click(event):
     line_index = results_textbox.index("@%s,%s linestart" % (event.x, event.y))
     line_text = results_textbox.get(line_index, f"{line_index} lineend").strip()
@@ -76,8 +108,8 @@ def on_dropdown_select(choice):
         return
 
     try:
-        import_df = pd.read_excel(choice) if choice.endswith((".xls", ".xlsx")) else pd.read_csv(choice)
-        
+        import_df = smart_read_file(choice)
+
         def truncate_cell(x, maxlen=30):
             return str(x)[:maxlen] + "..." if len(str(x)) > maxlen else x
 
@@ -86,12 +118,11 @@ def on_dropdown_select(choice):
 
         results_textbox.delete(1.0, "end")
         results_textbox.insert("end", preview)
-        
+
         messagebox.showinfo("File Loaded", f"File '{os.path.basename(choice)}' loaded successfully!")
 
     except Exception as e:
         messagebox.showerror("File Load Error", f"Failed to load file:\n{e}")
-# endregion
 
 
 # ----- IMPORT EXCEL/CSV ----- #
@@ -107,17 +138,21 @@ def load_file(file_path=None):
     print("Selected file path:", file_path)
 
     try:
-        if file_path.lower().endswith(".csv"):
-            import_df = pd.read_csv(file_path)
-        elif file_path.lower().endswith(".xlsx"):
-            import_df = pd.read_excel(file_path)
-        else:
-            messagebox.showerror("Error", "Unsupported file format. Please use .csv or .xlsx.")
-            return
+        import_df = smart_read_file(file_path)
 
         # Clean column names
         import_df.columns = import_df.columns.str.replace(' ', '', regex=False)
         print(import_df.head())
+
+        # Pretty preview like dropdown
+        def truncate_cell(x, maxlen=30):
+            return str(x)[:maxlen] + "..." if len(str(x)) > maxlen else x
+
+        preview_df = import_df.iloc[:, :10].head(10).applymap(truncate_cell)
+        preview = tabulate(preview_df, headers='keys', tablefmt='pretty', showindex=False)
+
+        results_textbox.delete(1.0, "end")
+        results_textbox.insert("end", preview)
 
         messagebox.showinfo("File Import", "File successfully imported!")
 
@@ -132,6 +167,7 @@ def load_file(file_path=None):
     except Exception as e:
         messagebox.showerror("Error", f"Failed to load file:\n{str(e)}")
 
+# endregion
 
 
 # ----- PROCESSING ----- #
@@ -376,11 +412,17 @@ xlsx_radio = ctk.CTkRadioButton(format_frame, text="XLSX", variable=file_format_
 csv_radio.grid(row=0, column=1, padx=5)
 xlsx_radio.grid(row=0, column=2, padx=5)
 
-# Results textbox
-results_textbox = ctk.CTkTextbox(root, wrap="word", width=760, height=300)
+# Results textbox with scrollbars
+textbox_frame = ctk.CTkFrame(root)
+textbox_frame.pack(pady=10, padx=10, fill="both", expand=False)
+
+
+# CTkTextbox with scrollbar support
+results_textbox = ctk.CTkTextbox(textbox_frame, wrap="none", width=760, height=270)
 results_textbox.configure(font=CTkFont(family="Courier", size=12))
-results_textbox.pack(pady=10, padx=10)
+results_textbox.pack(side="left", fill="both", expand=True)
 results_textbox.bind("<Double-1>", on_textbox_double_click)
+
 
 # Action Buttons
 button_frame = ctk.CTkFrame(root)
