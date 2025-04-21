@@ -113,7 +113,7 @@ def on_dropdown_select(choice):
         def truncate_cell(x, maxlen=30):
             return str(x)[:maxlen] + "..." if len(str(x)) > maxlen else x
 
-        preview_df = import_df.iloc[:, :10].head(10).applymap(truncate_cell)
+        preview_df = import_df.iloc[:, :10].head(10).map(truncate_cell)
         preview = tabulate(preview_df, headers='keys', tablefmt='pretty', showindex=False)
 
         results_textbox.delete(1.0, "end")
@@ -148,7 +148,7 @@ def load_file(file_path=None):
         def truncate_cell(x, maxlen=30):
             return str(x)[:maxlen] + "..." if len(str(x)) > maxlen else x
 
-        preview_df = import_df.iloc[:, :10].head(10).applymap(truncate_cell)
+        preview_df = import_df.iloc[:, :10].head(10).map(truncate_cell)
         preview = tabulate(preview_df, headers='keys', tablefmt='pretty', showindex=False)
 
         results_textbox.delete(1.0, "end")
@@ -322,10 +322,12 @@ def export_file():
         return
 
     file_type = file_format_var.get()
-    file_ext = "xlsx" if file_type == "Excel (.xlsx)" else "csv"
-    file_path = fd.asksaveasfilename(defaultextension=f".{file_ext}",
-                                        filetypes=[(file_type, f"*.{file_ext}")],
-                                        title="Save Exported File")
+    file_ext = "xlsx" if file_type.upper() == "XLSX" else "csv"
+    file_path = fd.asksaveasfilename(
+        defaultextension=f".{file_ext}",
+        filetypes=[(f"{file_ext.upper()} files", f"*.{file_ext}")],
+        title="Save Exported File"
+    )
 
     if not file_path:
         return
@@ -334,12 +336,13 @@ def export_file():
         if file_ext == "csv":
             merged_df.to_csv(file_path, index=False)
         elif file_ext == "xlsx":
-            # Use openpyxl engine for .xlsx files
-            merged_df.to_excel(file_path, index=False)
+            merged_df.to_excel(file_path, index=False, engine="openpyxl")
 
         messagebox.showinfo("Export Successful", f"File exported successfully as {file_ext.upper()}.")
+
     except Exception as e:
         messagebox.showerror("Export Error", f"Failed to export file.\n{e}")
+
 
 
 # ----- Create the main window ----- #
@@ -349,7 +352,7 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
 root = ctk.CTk()
 root.title("Missing Check Application")
-root.geometry("800x610")
+root.geometry("800x590")
 
 # Top Frame with Logo and Background
 header_frame = ctk.CTkFrame(root, height=130, corner_radius=0)
@@ -364,17 +367,19 @@ app.iconbitmap(os.path.join(current_dir, "search_icon.ico"))
 icon = PhotoImage(file=os.path.join(current_dir,"search_icon.png"))
 app.iconphoto(True, icon)
 
-image_dir = os.path.join(current_dir, "Gainwell_background.png")
-logo_dir = os.path.join(current_dir, "gw_logo.png")
+image_dir = os.path.join(current_dir, "app_bg.jpg")
+logo_dir = os.path.join(current_dir, "logo_no_bg.png")
 
-bg_image = ctk.CTkImage(dark_image=Image.open(image_dir), size=(600, 130))
+bg_image = ctk.CTkImage(dark_image=Image.open(image_dir), size=(800, 130))
 logo_image = ctk.CTkImage(dark_image=Image.open(logo_dir), size=(175, 60))
 
+# Background image label (fills the whole header)
 bg_image_label = ctk.CTkLabel(header_frame, image=bg_image, text="")
-bg_image_label.pack(side="left", padx=10)
+bg_image_label.place(x=0, y=0, relwidth=1, relheight=1)  # Stretch to fit
 
+# Logo image label (centered on top of background)
 logo_image_label = ctk.CTkLabel(header_frame, image=logo_image, text="")
-logo_image_label.pack(side="right", padx=10)
+logo_image_label.place(relx=0.5, rely=0.5, anchor="center")  # Center logo
 
 # Load icons
 export_icon = CTkImage(Image.open("export_icon.png"), size=(20, 20))
