@@ -1,7 +1,7 @@
 from functions import *
 
 
-# ----- GLOBAL VARIABLE ----- #
+# ----- GLOBAL VARIABLES ----- #
 import_df = pd.DataFrame()
 HISTORY_FILE = "file_history.txt"
 MAX_HISTORY = 10
@@ -398,16 +398,28 @@ file_label.grid(row=0, column=0, padx=5)
 file_dropdown = ctk.CTkComboBox(file_frame, values=load_file_history(), command=on_dropdown_select)
 file_dropdown.grid(row=0, column=1, padx=5)
 
-browse_button = ctk.CTkButton(file_frame, text="Browse", image=browse_icon, compound='left', command=load_file, font=("Segoe UI", 12, "bold"))
+browse_button = ctk.CTkButton(file_frame, text="Browse", image=browse_icon, compound='left', command=load_file, font=("Segoe UI", 14, "bold"),
+                              corner_radius=5,
+                            border_width=1.5,
+                            fg_color="#1c8c53",           # Deep green
+                            hover_color="#29a06d",        # Lighter on hover
+                            border_color="#ffffff",       # White border
+                            text_color="white")
 browse_button.grid(row=0, column=2, padx=5)
 
 # Format Selection
 format_frame = ctk.CTkFrame(root)
-format_frame.pack()
+# format_frame.pack()
 
 export_label = ctk.CTkLabel(format_frame, text="Export Format:")
 export_label.grid(row=0, column=0, padx=5)
-export_button = ctk.CTkButton(format_frame, text="Export", image=export_icon, compound="left", command=export_file, font=("Segoe UI", 12, "bold"))
+export_button = ctk.CTkButton(format_frame, text="Export", image=export_icon, compound="left", command=export_file, font=("Segoe UI", 14, "bold"),
+                              corner_radius=5,
+                            border_width=1.5,
+                            fg_color="#1c8c53",           # Deep green
+                            hover_color="#29a06d",        # Lighter on hover
+                            border_color="#ffffff",       # White border
+                            text_color="white")
 export_button.grid(row=0, column=3, padx=5)
 
 
@@ -433,14 +445,35 @@ results_textbox.bind("<Double-1>", on_textbox_double_click)
 button_frame = ctk.CTkFrame(root)
 button_frame.pack(pady=10)
 
-run_button = ctk.CTkButton(button_frame, text="Start Process", image=start_icon, compound='left', command=process_query, font=("Segoe UI", 12, "bold"))
+run_button = ctk.CTkButton(button_frame, text="Start Process", image=start_icon, compound='left', command=process_query, font=("Segoe UI", 14, "bold"),
+                           corner_radius=5,
+                            border_width=1.5,
+                            fg_color="#1c8c53",           # Deep green
+                            hover_color="#29a06d",        # Lighter on hover
+                            border_color="#ffffff",       # White border
+                            text_color="white")
+
 run_button.grid(row=0, column=0, padx=10)
 
-clear_button = ctk.CTkButton(button_frame, text="Clear Results", image=clear_icon, compound='left', command=lambda: results_textbox.delete("1.0", "end"), font=("Segoe UI", 12, "bold"))
+clear_button = ctk.CTkButton(button_frame, text="Clear Results", image=clear_icon, compound='left', command=lambda: results_textbox.delete("1.0", "end"), font=("Segoe UI", 14, "bold"),
+                             corner_radius=5,
+                            border_width=1.5,
+                            fg_color="#1c8c53",           # Deep green
+                            hover_color="#29a06d",        # Lighter on hover
+                            border_color="#ffffff",       # White border
+                            text_color="white")
 clear_button.grid(row=0, column=1, padx=10)
 
-exit_button = ctk.CTkButton(button_frame, text="Exit", image=exit_icon, compound='left', command=root.destroy, font=("Segoe UI", 12, "bold"))
+exit_button = ctk.CTkButton(button_frame, text="Exit", image=exit_icon, compound='left', command=root.destroy, font=("Segoe UI", 14, "bold"),
+                            corner_radius=5,
+                            border_width=1.5,
+                            fg_color="#1c8c53",           # Deep green
+                            hover_color="#29a06d",        # Lighter on hover
+                            border_color="#ffffff",       # White border
+                            text_color="white")
 exit_button.grid(row=0, column=2, padx=10)
+
+format_frame.pack()
 
 # Status label
 status_label = ctk.CTkLabel(root, text="Ready", text_color="gray")
