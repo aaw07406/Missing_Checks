@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import pandas as pd
 import pyodbc as od
 import time
@@ -55,3 +56,52 @@ def get_db2_sql(sql: str, conn: str = None) -> pd.DataFrame:
     return res
 
 
+=======
+import pandas as pd
+import pyodbc as od
+import time
+import logging
+import os.path
+from datetime import datetime, timedelta
+import os
+import customtkinter as ctk
+from PIL import Image
+from tkinter import messagebox
+import os
+from tabulate import tabulate
+from customtkinter import CTkFont
+
+
+ecprod = 'DSN=ECPROD'
+edwprod = 'DSN=EDWPROD'
+arrprod = 'DSN=ARRPROD'
+logger = logging.getLogger()
+this_folder = os.path.dirname(os.path.abspath(__file__))
+
+
+def get_sql(sql: str, conn: str = edwprod) -> pd.DataFrame:
+    """ Returns pd.DataFrame results from query string with pyodbc connection string."""
+    connection = od.connect(conn, autocommit=True, unicode_results=True)
+    res = pd.read_sql(sql, connection)
+    connection.close()
+    return res
+
+
+def execute_sql(sql: str, conn: str = edwprod) -> None:
+    """Executes a SQL statement that does not return a result (e.g., CREATE, DROP, INSERT)."""
+    connection = od.connect(conn, autocommit=True, unicode_results=True)
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    cursor.close()
+    connection.close()
+
+
+def get_db2_sql(sql: str, conn: str = None) -> pd.DataFrame:
+    """ Returns pd.DataFrame results from query string with pyodbc connection string."""
+    connection = od.connect(conn, autocommit=True, unicode_results=True)
+    res = pd.read_sql(sql, connection)
+    connection.close()
+    return res
+
+
+>>>>>>> 6f7b5b6771fbd3214bf58d4288c9e299e48160e2
