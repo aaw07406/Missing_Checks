@@ -1,0 +1,10 @@
+//hmsdalfile/general/Government Services South/LA TPL/Lockbox/2024/LA_06012024 - 08312024.csv
+//hmsdalfile/general/Government Services South/LA TPL/Lockbox/2024/May 2024 Payment Detail.xlsx
+//hmsdalfile/general/Government Services South/LA TPL/Lockbox/2024/September Paymnet Detail.xlsx
+//hmsdalfile/general/Government Services South/LA TPL/Lockbox/2024/December 2024_Payment detail.xlsx
+//hmsdalfile/general/Government Services South/LA TPL/Lockbox/January 25_Payment Detail.xlsx
+//hmsdalfile/general/Government Services South/LA TPL/Lockbox/March 25_Paymnet Detail.csv
+//hmsdalfile/general/Government Services South/LA TPL/Lockbox/January 25_Payment Detail.csv
+//hmsdalfile/general/Government Services South/LA TPL/Lockbox/Missing Check Research/301 Missing Checks(Sheet1).csv
+//hmsdalfile/general/Government Services South/LA TPL/Lockbox/February 25_Payment Detail.csv
+//hmsdalfile/general/Government Services South/LA TPL/Lockbox/2024/June 2024 Payment Detail.xlsx
