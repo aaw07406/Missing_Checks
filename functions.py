@@ -47,6 +47,26 @@ def execute_sql(sql: str, conn: str = edwprod) -> None:
     connection.close()
 
 
+def sql_insert(df, conn: str = None):
+    """Executes a SQL statement that does not return a result (e.g., CREATE, DROP, INSERT)."""
+    connection = od.connect(conn, autocommit=True, unicode_results=True)
+    cursor = connection.cursor()
+    for row in df.itertuples(index=False):
+        cursor.execute("""
+            MERGE INTO DL_MARSHALL.MISSING_CHECKS AS tgt
+            USING (SELECT ? AS RECORD_TYPE_RF, ? AS CARRIER_CD, ? AS CARRIER_NM, ? AS CHECK_NUM, ? AS CHECK_AMT) AS src
+            ON tgt.CHECK_NUM = src.CHECK_NUM AND tgt.CARRIER_CD = src.CARRIER_CD AND tgt.CHECK_AMT = src.CHECK_AMT
+            WHEN NOT MATCHED THEN
+            INSERT (RECORD_TYPE_RF, CARRIER_CD, CARRIER_NM, CHECK_NUM, CHECK_AMT)
+            VALUES (src.RECORD_TYPE_RF, src.CARRIER_CD, src.CARRIER_NM, src.CHECK_NUM, src.CHECK_AMT)
+        """, row)
+
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+
 def get_db2_sql(sql: str, conn: str = None) -> pd.DataFrame:
     """ Returns pd.DataFrame results from query string with pyodbc connection string."""
     connection = od.connect(conn, autocommit=True, unicode_results=True)
