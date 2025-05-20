@@ -376,7 +376,7 @@ def export_td_file():
     print("Teradata Export triggered!")
     status_label.configure(text="Teradata Export completed.")  # Feedback to user
     messagebox.showinfo("Export Successful", "Data exported to Teradata table successfully!")
-
+    print("Teradata Export completed.")
 
 
 # ----- Create the main window ----- #

@@ -61,7 +61,6 @@ def sql_insert(df, conn: str = None):
             VALUES (src.RECORD_TYPE_RF, src.CARRIER_CD, src.CARRIER_NM, src.CHECK_NUM, src.CHECK_AMT)
         """, row)
 
-
     connection.commit()
     cursor.close()
     connection.close()
